@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#141818" />
+    <link rel="icon" href="./src/assets/favicon.svg?inline" />
+    <title>DUCKLINE · 灰港撤离</title>
+  </head>
+  <body>
+    <header>
+      <div class="brand">
+        <span id="brandlogo"></span><strong>DUCKLINE</strong><i></i
+        ><span class="brand-sub">撤离行动</span>
+      </div>
+      <div class="header-tools">
+        <span class="live"><i></i><span id="liveText">行动中</span></span
+        ><b></b
+        ><button
+          id="perspective"
+          title="切换到第一人称 (C)"
+          aria-label="切换到第一人称 (C)"
+          aria-pressed="false"
+        >
+          3P</button
+        ><button id="sound" title="声音" aria-label="声音"></button
+        ><button id="settings" title="设置" aria-label="设置"></button
+        ><button id="pause" title="暂停 (Esc)" aria-label="暂停"></button>
+      </div>
+    </header>
+    <main id="game">
+      <canvas id="world" aria-label="灰港货场游戏场景"></canvas>
+      <div class="vignette"></div>
+      <div id="criticalHealth" aria-hidden="true"></div>
+      <div id="hurt"></div>
+      <section class="mission">
+        <div class="eyebrow amber"><i></i> OPERATION 01</div>
+        <h1>灰港货场</h1>
+        <div class="zone">GREYPORT FREIGHT YARD</div>
+        <div class="objectives">
+          <div class="micro objective-head">
+            <span id="flagIcon"></span> 行动目标
+          </div>
+          <div class="task">
+            <span class="diamond" id="t1"></span><span id="cargoTask">去北坡哨营取爆破包</span
+            >
+          </div>
+          <div class="task" id="exitTask">
+            <span class="diamond"></span><span id="gateTask">炸开南侧路障</span>
+          </div>
+        </div>
+      </section>
+      <div class="compass" aria-hidden="true">
+        <div class="bearing">335</div>
+        <div class="ruler"></div>
+        <div class="directions">
+          <span>W</span><span>300</span><b>NW</b><span>330</span
+          ><strong>N</strong><span>30</span><b>NE</b>
+        </div>
+      </div>
+      <aside class="navside">
+        <button id="mapButton" title="战术地图 (M)">
+          <div class="mapwrap">
+            <canvas id="mini" width="320" height="238"></canvas><em>N</em
+            ><span class="mapExpand"></span>
+          </div>
+          <div class="map-guide" id="mapGuide"><span id="mapGoal"></span><b id="mapBearing"></b></div>
+          <div class="map-caption">
+            <span><i></i> 战术地图</span><kbd>M</kbd>
+          </div>
+        </button>
+        <div class="timer">
+          <span id="clockIcon"></span><span>剩余时间</span
+          ><b id="timer">15:00</b>
+        </div>
+      </aside>
+      <div id="markers"></div>
+      <div id="crosshair" aria-hidden="true"><i></i></div>
+      <div id="alertBar" hidden><span></span><i></i></div>
+      <div id="hint"></div>
+      <div id="actionProgress" hidden>
+        <div>
+          <strong id="actionName"></strong><span id="actionPercent"></span>
+        </div>
+        <progress
+          id="actionBar"
+          max="1"
+          value="0"
+          aria-labelledby="actionName"
+        ></progress>
+      </div>
+      <div id="toast" aria-live="polite"></div>
+      <section class="operator">
+        <div class="portrait"><img id="portrait" alt="侦察鸭头像" /></div>
+        <div class="vitals">
+          <div class="callsign"><span>侦察鸭</span><small>OP–01</small></div>
+          <div class="vline">
+            <span class="health-plus">✚</span><strong id="hp">100</strong
+            ><small>/ 100</small>
+          </div>
+          <div class="meter"><i id="hpbar"></i></div>
+          <div class="stam">
+            <b>ϟ</b>
+            <div><i id="stbar"></i></div>
+          </div>
+        </div>
+      </section>
+      <div class="hotbar" id="hotbar"></div>
+      <section class="weapon">
+        <div class="weapon-label">
+          <i></i><span id="gunName">AR–04</span
+          ><small id="modeName">全自动</small>
+        </div>
+        <div class="ammo">
+          <b id="ammo">30</b><span>/</span><strong id="reserve">120</strong>
+        </div>
+        <div class="bulletTicks" id="ammoGauge" aria-hidden="true"></div>
+      </section>
+      <div class="mobilepad">
+        <div id="stick" aria-label="移动摇杆，向外推疾跑"><i></i></div>
+        <div>
+          <button id="touchAct">交互</button
+          ><button id="touchReload">换弹</button
+          ><button id="touchFire" aria-label="开火，拖动瞄准">开火</button>
+        </div>
+      </div>
+      <div id="overlay" hidden>
+        <article id="modal" role="dialog" aria-modal="true"></article>
+      </div>
+      <div id="loading">
+        <div class="eyebrow">GREYPORT / 01</div>
+        <strong>部署中</strong><i></i>
+      </div>
+    </main>
+    <div id="iris" hidden aria-hidden="true"></div>
+    <footer>
+      <span class="touch-guide"
+        >左摇杆移动 · 右侧滑动转向，长按开火后拖动瞄准</span
+      >
+      <div class="bindings">
+        <span><kbd>W A S D</kbd> 移动</span><span><kbd>SHIFT</kbd> 疾跑</span
+        ><span><kbd>空格 / 左键</kbd> 射击</span
+        ><span><kbd id="lookBinding">双指滑动 / 捏合</kbd> 转视角</span
+        ><span><kbd>R</kbd> 换弹</span><span><kbd>F</kbd> 交互</span
+        ><span><kbd>TAB</kbd> 背包</span>
+      </div>
+      <span class="foot-status"
+        ><i></i> <span id="qualityTag">ULTRA</span><b></b
+        ><span id="fps">— FPS</span></span
+      >
+    </footer>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
